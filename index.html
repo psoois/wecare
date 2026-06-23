@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Территория помощи — Платформа взаимодействия</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:#1D9E75;--green-l:#E1F5EE;--green-d:#0F6E56;
+  --amber:#BA7517;--amber-l:#FAEEDA;
+  --coral:#D85A30;--coral-l:#FAECE7;
+  --gray-l:#F1EFE8;--gray-d:#444441;--gray-m:#888780;
+  --blue:#185FA5;--blue-l:#E6F1FB;
+  --white:#fff;--text:#2C2C2A;--text-m:#5F5E5A;
+  --border:rgba(44,44,42,0.12);--r:12px;--r-sm:8px;
+  --fs-base:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:#F7F6F2;color:var(--text);min-height:100vh;font-size:var(--fs-base);transition:font-size .25s}
+
+/* ===== РЕЖИМ ДЛЯ СЛАБОВИДЯЩИХ ===== */
+body.vision-lg{--fs-base:20px}
+
+/* Кнопка на навбаре */
+.btn-vision{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 12px;border:2px solid var(--border);
+  border-radius:var(--r-sm);background:var(--white);
+  color:var(--text-m);font-size:13px;font-weight:700;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:all .18s;line-height:1;
+}
+.btn-vision:hover{border-color:var(--green);color:var(--green-d);background:var(--green-l)}
+.btn-vision.active{
+  background:var(--green);color:#fff;
+  border-color:var(--green);
+}
+.btn-vision .vi-icon{font-size:17px;line-height:1}
+
+/* При включённом режиме — увеличиваем ключевые элементы явно */
+body.vision-lg .task-title{font-size:1.15em}
+body.vision-lg .task-desc{font-size:1em;line-height:1.8}
+body.vision-lg .btn{font-size:1em;padding:11px 18px}
+body.vision-lg .btn-sm{font-size:.9em;padding:8px 14px}
+body.vision-lg .form-input,
+body.vision-lg .form-select,
+body.vision-lg .form-textarea{font-size:1em;padding:12px 14px}
+body.vision-lg .form-label{font-size:.95em}
+body.vision-lg .task-meta{font-size:.85em;gap:14px}
+body.vision-lg .card{padding:22px}
+body.vision-lg .page-title{font-size:1.4em}
+body.vision-lg .section-title{font-size:1.1em}
+body.vision-lg .status-badge,.vision-lg .task-cat,.vision-lg .chip{font-size:.85em;padding:5px 12px}
+body.vision-lg .nav-tab{font-size:15px;padding:8px 14px}
+body.vision-lg .login-sub{font-size:1.1em;line-height:1.7}
+body.vision-lg .login-logo{font-size:52px}
+body.vision-lg .role-card h3{font-size:1.1em}
+body.vision-lg .role-card p{font-size:.9em}
+body.vision-lg .vol-name{font-size:1em}
+body.vision-lg .msg{font-size:1em}
+body.vision-lg .chat-input input{font-size:1em}
+body.vision-lg .profile-name{font-size:1.25em}
+body.vision-lg .pstat .num{font-size:1.3em}
+
+/* NAV */
+#app-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 16px;gap:8px}
+.nav-logo{font-size:20px;font-weight:800;color:var(--green);letter-spacing:-0.5px;white-space:nowrap;flex-shrink:0}
+.nav-logo span{color:var(--gray-d)}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;padding:0 8px}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:7px 12px;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-m);transition:all .15s;white-space:nowrap;flex-shrink:0}
+.nav-tab.active{background:var(--green-l);color:var(--green-d)}
+.nav-tab:hover:not(.active){background:var(--gray-l)}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn-login{padding:8px 16px;background:var(--green);color:#fff;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer}
+.btn-login:hover{background:var(--green-d)}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0}
+.av-c{background:var(--blue-l);color:var(--blue)}
+.av-v{background:var(--green-l);color:var(--green-d)}
+.av-a{background:var(--coral-l);color:var(--coral)}
+.role-badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;display:none}
+@media(min-width:600px){.role-badge{display:inline-block}}
+.rb-c{background:var(--blue-l);color:var(--blue)}
+.rb-v{background:var(--green-l);color:var(--green-d)}
+.rb-a{background:var(--coral-l);color:var(--coral)}
+
+/* HAMBURGER */
+.ham-btn{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0}
+.ham-btn span{display:block;width:22px;height:2px;background:var(--text-m);border-radius:2px}
+@media(max-width:640px){
+  .ham-btn{display:flex}
+  .nav-tabs{display:none;position:fixed;top:60px;left:0;right:0;background:var(--white);flex-direction:column;padding:8px 12px 12px;border-bottom:1px solid var(--border);z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+  .nav-tabs.open{display:flex}
+}
+
+/* MAIN */
+.main-wrap{padding-top:60px;min-height:100vh}
+.page{display:none;padding:20px 16px;max-width:1000px;margin:0 auto}
+.page.active{display:block}
+
+/* LOGIN SCREEN */
+#page-login{max-width:660px;margin:0 auto;padding-top:40px;text-align:center}
+.login-logo{font-size:44px;font-weight:800;color:var(--green);margin-bottom:6px}
+.login-sub{font-size:15px;color:var(--text-m);margin-bottom:36px;line-height:1.5;padding:0 12px}
+.role-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+@media(max-width:520px){.role-cards{grid-template-columns:1fr}}
+.role-card{background:var(--white);border:2px solid var(--border);border-radius:var(--r);padding:22px 16px;cursor:pointer;transition:all .2s;text-align:center}
+.role-card:hover,.role-card.selected{border-color:var(--green);background:var(--green-l)}
+.role-card .icon{font-size:36px;margin-bottom:10px}
+.role-card h3{font-size:15px;font-weight:700;margin-bottom:5px}
+.role-card p{font-size:12px;color:var(--text-m);line-height:1.5}
+.btn-enter{background:var(--green);color:#fff;border:none;padding:13px 40px;border-radius:var(--r);font-size:16px;font-weight:700;cursor:pointer;width:100%;max-width:280px}
+.btn-enter:hover{background:var(--green-d)}
+
+/* AUTH MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(44,44,42,.45);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:var(--r);padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:18px}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-m);line-height:1}
+.auth-tabs{display:flex;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.auth-tab{flex:1;padding:10px;text-align:center;font-weight:700;font-size:14px;cursor:pointer;border:none;background:none;color:var(--text-m);border-bottom:2px solid transparent;margin-bottom:-1px}
+.auth-tab.active{color:var(--green-d);border-bottom-color:var(--green)}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-label{font-size:13px;font-weight:700;margin-bottom:5px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:inherit;outline:none;background:var(--white);transition:border-color .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green)}
+.form-textarea{resize:vertical;min-height:90px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.grid-2{grid-template-columns:1fr}}
+
+/* BUTTONS */
+.btn{padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-primary:hover{background:var(--green-d)}
+.btn-secondary{background:var(--white);color:var(--text)}
+.btn-secondary:hover{background:var(--gray-l)}
+.btn-danger{background:var(--white);color:var(--coral);border-color:var(--coral-l)}
+.btn-danger:hover{background:var(--coral-l)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-block{width:100%;justify-content:center}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.page-title{font-size:20px;font-weight:800}
+.page-subtitle{font-size:13px;color:var(--text-m);margin-top:3px}
+
+/* TASK CARD */
+.task-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;transition:box-shadow .15s}
+.task-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.07)}
+.task-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.task-title{font-size:15px;font-weight:700}
+.task-cat{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.cat-medical{background:var(--blue-l);color:var(--blue)}
+.cat-shopping{background:var(--green-l);color:var(--green-d)}
+.cat-transport{background:var(--amber-l);color:var(--amber)}
+.cat-home{background:var(--coral-l);color:var(--coral)}
+.cat-docs{background:#F0E8FB;color:#6B3FA0}
+.task-desc{font-size:13px;color:var(--text-m);line-height:1.6;margin-bottom:10px}
+.task-meta{display:flex;gap:12px;font-size:12px;color:var(--text-m);flex-wrap:wrap;margin-bottom:10px}
+.task-actions{display:flex;gap:8px;flex-wrap:wrap}
+.status-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.s-open{background:var(--green-l);color:var(--green-d)}
+.s-active{background:var(--amber-l);color:var(--amber)}
+.s-done{background:#E8E8E8;color:var(--gray-d)}
+.s-mod{background:#F0E8FB;color:#6B3FA0}
+
+/* TABS */
+.tab-row{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.tab-row::-webkit-scrollbar{display:none}
+.tab-btn{padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--text-m);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tab-btn.active{color:var(--green-d);border-bottom-color:var(--green)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* CHAT */
+.chat-layout{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
+@media(max-width:640px){.chat-layout{grid-template-columns:1fr}}
+.chat-sidebar{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.chat-sidebar-head{padding:12px 14px;font-weight:700;font-size:14px;border-bottom:1px solid var(--border)}
+.chat-conv-item{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
+.chat-conv-item:last-child{border-bottom:none}
+.chat-conv-item:hover,.chat-conv-item.active{background:var(--green-l)}
+.chat-conv-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.chat-conv-info{flex:1;min-width:0}
+.chat-conv-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-conv-last{font-size:12px;color:var(--text-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-conv-time{font-size:11px;color:var(--text-m);flex-shrink:0}
+.chat-unread{background:var(--green);color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700}
+.chat-window{background:var(--white);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column;height:500px}
+@media(max-width:640px){.chat-window{height:380px}}
+.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:76%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.5}
+.msg-in{background:var(--gray-l);color:var(--text);align-self:flex-start;border-radius:14px 14px 14px 4px}
+.msg-out{background:var(--green);color:#fff;align-self:flex-end;border-radius:14px 14px 4px 14px}
+.msg-time{font-size:11px;opacity:.6;margin-top:2px}
+.chat-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}
+.chat-input input{flex:1;border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px;font-size:14px;font-family:inherit;outline:none;min-width:0}
+.chat-input input:focus{border-color:var(--green)}
+.chat-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-m);font-size:14px}
+
+/* VOLUNTEER ITEM */
+.vol-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.vol-item:last-child{border-bottom:none}
+.vol-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;background:var(--green-l);color:var(--green-d)}
+.vol-info{flex:1;min-width:0}
+.vol-name{font-weight:700;font-size:14px}
+.vol-stats{display:flex;gap:10px;font-size:12px;color:var(--text-m);margin-top:3px;flex-wrap:wrap}
+.stars{color:#EF9F27;font-size:13px}
+
+/* PROFILE */
+.profile-top{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;align-items:center;gap:18px;margin-bottom:18px;flex-wrap:wrap}
+.profile-av{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0}
+.profile-name{font-size:18px;font-weight:800}
+.profile-stats-row{display:flex;gap:18px;margin-top:8px}
+.pstat .num{font-size:18px;font-weight:800;color:var(--green)}
+.pstat .lbl{font-size:11px;color:var(--text-m);font-weight:600}
+
+/* ADMIN TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:9px 12px;background:var(--gray-l);font-weight:700;font-size:12px;color:var(--text-m)}
+.data-table th:first-child{border-radius:var(--r-sm) 0 0 var(--r-sm)}
+.data-table th:last-child{border-radius:0 var(--r-sm) var(--r-sm) 0}
+.data-table td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.table-wrap{overflow-x:auto}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:520px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+.stat-num{font-size:26px;font-weight:800;color:var(--green)}
+.stat-label{font-size:12px;color:var(--text-m);margin-top:3px;font-weight:600}
+
+/* RATING */
+.rating-stars{display:flex;gap:4px;font-size:28px;cursor:pointer}
+.rating-stars span{color:#D3D1C7;transition:color .1s}
+.rating-stars span.filled{color:#EF9F27}
+
+/* MISC */
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.section-title{font-size:15px;font-weight:700;margin-bottom:12px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-m)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.flex-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ml-auto{margin-left:auto}
+.mt-12{margin-top:12px}
+.mb-14{margin-bottom:14px}
+.text-m{color:var(--text-m);font-size:13px}
+.bold{font-weight:700}
+.chip{display:inline-block;background:var(--gray-l);color:var(--gray-d);font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;margin:2px}
+.chip.green{background:var(--green-l);color:var(--green-d)}
+.notif{position:fixed;bottom:20px;right:20px;background:var(--green-d);color:#fff;padding:12px 18px;border-radius:var(--r);font-size:14px;font-weight:600;z-index:300;transform:translateY(70px);opacity:0;transition:all .3s;box-shadow:0 6px 20px rgba(0,0,0,.18);max-width:calc(100vw - 40px)}
+.notif.show{transform:translateY(0);opacity:1}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-row .form-select{width:auto;min-width:140px}
+.section-hint{font-size:12px;color:var(--text-m);margin-top:6px;font-style:italic}
+.pass-toggle{position:relative}
+.pass-toggle .form-input{padding-right:40px}
+.pass-toggle .eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-m)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="app-nav">
+  <div class="nav-logo">Территория<span>Помощи</span></div>
+  <button class="ham-btn" id="ham-btn" onclick="toggleHam()" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-tabs" id="nav-tabs"></div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn-vision" id="btn-vision" onclick="toggleVision()" title="Режим для слабовидящих" aria-pressed="false">
+      <span class="vi-icon">👁</span><span class="vi-label">А+</span>
+    </button>
+    <button class="btn-login" onclick="openAuthModal('login')">Войти</button>
+  </div>
+</nav>
+
+<div class="main-wrap" id="main-wrap">
+
+<!-- ====== LOGIN ROLE SELECT ====== -->
+<div id="page-login" class="page active" style="max-width:660px;padding-top:40px">
+  <div style="text-align:center">
+    <div class="login-logo">Территория помощи</div>
+    <div class="login-sub">Платформа взаимодействия волонтёров и нуждающихся в помощи граждан</div>
+  </div>
+  <!-- PUBLIC: задания без авторизации -->
+  <div class="filter-row" style="justify-content:center">
+    <select class="form-select" id="pub-filter-cat" onchange="renderPublicFeed()">
+      <option value="all">Все категории</option>
+      <option value="Покупки">Покупки</option>
+      <option value="Медицинская">Медицинская</option>
+      <option value="Транспорт">Транспорт</option>
+      <option value="Помощь по дому">Помощь по дому</option>
+      <option value="Документы">Документы</option>
+    </select>
+    <select class="form-select" id="pub-filter-sort" onchange="renderPublicFeed()">
+      <option value="new">Сортировка: Новые</option>
+      <option value="urgent">По срочности</option>
+      <option value="near">По близости</option>
+    </select>
+  </div>
+  <div id="public-feed"></div>
+  <div style="text-align:center;margin-top:24px">
+    <div class="text-m mb-14" style="margin-bottom:10px">Хотите откликнуться или разместить задание?</div>
+    <button class="btn-enter" onclick="openAuthModal('register')">Зарегистрироваться</button>
+    <div style="margin-top:10px"><button class="btn btn-secondary" onclick="openAuthModal('login')">Уже есть аккаунт — Войти</button></div>
+  </div>
+</div>
+
+<!-- ====== CUSTOMER PAGES ====== -->
+<div id="c-feed" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Мои задания</div><div class="page-subtitle">Управляйте своими объявлениями</div></div>
+    <button class="btn btn-primary" onclick="openModal('modal-create-task')">+ Новое задание</button>
+  </div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab(this,'ct-active')">Активные</button>
+    <button class="tab-btn" onclick="switchTab(this,'ct-history')">История</button>
+  </div>
+  <div id="ct-active" class="tab-content active"></div>
+  <div id="ct-history" class="tab-content"></div>
+</div>
+
+<div id="c-chat" class="page">
+  <div class="page-header"><div class="page-title">Чат</div></div>
+  <div class="chat-layout">
+    <div class="chat-sidebar">
+      <div class="chat-sidebar-head">Диалоги</div>
+      <div id="c-chat-list"></div>
+    </div>
+    <div>
+      <div class="chat-window" id="c-chat-window">
+        <div class="chat-placeholder" id="c-chat-placeholder">Выберите диалог</div>
+        <div id="c-chat-body" style="display:none;flex-direction:column;height:100%">
+          <div class="chat-header" id="c-chat-header"></div>
+          <div class="chat-messages" id="chat-messages-c"></div>
+          <div class="chat-input">
+            <input type="text" id="chat-input-c" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendMsg('c')">
+            <button class="btn btn-primary btn-sm" onclick="sendMsg('c')">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="c-profile" class="page">
+  <div class="profile-top">
+    <div class="profile-av av-c" id="c-prof-av">НК</div>
+    <div>
+      <div class="profile-name" id="c-prof-name">Надежда Кузнецова</div>
+      <div class="flex-row" style="margin-top:6px">
+        <span class="role-badge rb-c" style="display:inline-block">Заказчик</span>
+        <span class="stars">★★★★★</span><span class="text-m">4.9</span>
+      </div>
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="num">12</div><div class="lbl">Заданий</div></div>
+        <div class="pstat"><div class="num">11</div><div class="lbl">Выполнено</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">Личные данные</div>
+      <div class="form-group"><label class="form-label">Имя</label><input class="form-input" id="c-edit-name" value="Надежда Кузнецова"></div>
+      <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" id="c-edit-phone" value="+7 (912) 345-67-89"></div>
+      <div class="form-group"><label class="form-label">Адрес</label><input class="form-input" id="c-edit-addr" value="ул. Ленина, 45, кв. 12"></div>
+      <button class="btn btn-primary" onclick="saveProfile('customer')">Сохранить данные</button>
+      <hr class="divider">
+      <div class="section-title">Сменить пароль</div>
+      <div class="form-group"><label class="form-label">Текущий пароль</label>
+        <div class="pass-toggle"><input class="form-input" type="password" id="c-old-pass" placeholder="••••••"><button class="eye-btn" onclick="togglePass('c-old-pass',this)">👁</button></div>
+      </div>
+      <div class="form-group"><label class="form-label">Новый пароль</label>
+        <div class="pass-toggle"><input class="form-input" type="password" id="c-new-pass" placeholder="••••••"><button class="eye-btn" onclick="togglePass('c-new-pass',this)">👁</button></div>
+      </div>
+      <div class="form-group"><label class="form-label">Новый логин (email)</label><input class="form-input" id="c-new-login" placeholder="новый@email.ru"></div>
+      <button class="btn btn-secondary" onclick="changeCredentials()">Обновить логин / пароль</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Отзывы о вас</div>
+      <div id="c-reviews-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== VOLUNTEER PAGES ====== -->
+<div id="v-feed" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Доступные задания</div></div>
+  </div>
+  <div class="filter-row">
+    <select class="form-select" id="v-filter-cat" onchange="renderVolFeed()">
+      <option value="all">Все категории</option>
+      <option value="Покупки">Покупки</option>
+      <option value="Медицинская">Медицинская</option>
+      <option value="Транспорт">Транспорт</option>
+      <option value="Помощь по дому">Помощь по дому</option>
+      <option value="Документы">Документы</option>
+    </select>
+    <select class="form-select" id="v-filter-sort" onchange="renderVolFeed()">
+      <option value="new">Сортировка: Новые</option>
+      <option value="urgent">По срочности</option>
+      <option value="near">По близости</option>
+    </select>
+  </div>
+  <div id="v-tasks-list"></div>
+</div>
+
+<div id="v-mytasks" class="page">
+  <div class="page-header"><div class="page-title">Мои задания</div></div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab(this,'vt-current')">Текущие</button>
+    <button class="tab-btn" onclick="switchTab(this,'vt-history')">История</button>
+  </div>
+  <div id="vt-current" class="tab-content active"></div>
+  <div id="vt-history" class="tab-content"></div>
+</div>
+
+<div id="v-chat" class="page">
+  <div class="page-header"><div class="page-title">Чат</div></div>
+  <div class="chat-layout">
+    <div class="chat-sidebar">
+      <div class="chat-sidebar-head">Диалоги</div>
+      <div id="v-chat-list"></div>
+    </div>
+    <div>
+      <div class="chat-window" id="v-chat-window">
+        <div class="chat-placeholder" id="v-chat-placeholder">Выберите диалог</div>
+        <div id="v-chat-body" style="display:none;flex-direction:column;height:100%">
+          <div class="chat-header" id="v-chat-header"></div>
+          <div class="chat-messages" id="chat-messages-v"></div>
+          <div class="chat-input">
+            <input type="text" id="chat-input-v" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendMsg('v')">
+            <button class="btn btn-primary btn-sm" onclick="sendMsg('v')">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="v-profile" class="page">
+  <div class="profile-top">
+    <div class="profile-av av-v" id="v-prof-av">АС</div>
+    <div>
+      <div class="profile-name" id="v-prof-name">Андрей Смирнов</div>
+      <div class="flex-row" style="margin-top:6px">
+        <span class="role-badge rb-v" style="display:inline-block">Волонтёр</span>
+        <span class="stars">★★★★★</span><span class="text-m">4.8</span>
+      </div>
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="num" id="v-done-count">34</div><div class="lbl">Выполнено</div></div>
+        <div class="pstat"><div class="num">28</div><div class="lbl">Отзывов</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">Профиль волонтёра</div>
+      <div class="form-group"><label class="form-label">Имя</label><input class="form-input" id="v-edit-name" value="Андрей Смирнов"></div>
+      <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" id="v-edit-phone" value="+7 (916) 200-11-22"></div>
+      <div class="form-group"><label class="form-label">Район</label><input class="form-input" id="v-edit-district" value="Центральный район"></div>
+      <div class="form-group">
+        <label class="form-label">Доступное время</label>
+        <select class="form-select" id="v-edit-time">
+          <option>Будние дни после 17:00</option>
+          <option>Выходные</option>
+          <option>Любое время</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="saveProfile('volunteer')">Сохранить данные</button>
+      <hr class="divider">
+      <div class="section-title">Сменить пароль</div>
+      <div class="form-group"><label class="form-label">Текущий пароль</label>
+        <div class="pass-toggle"><input class="form-input" type="password" id="v-old-pass" placeholder="••••••"><button class="eye-btn" onclick="togglePass('v-old-pass',this)">👁</button></div>
+      </div>
+      <div class="form-group"><label class="form-label">Новый пароль</label>
+        <div class="pass-toggle"><input class="form-input" type="password" id="v-new-pass" placeholder="••••••"><button class="eye-btn" onclick="togglePass('v-new-pass',this)">👁</button></div>
+      </div>
+      <div class="form-group"><label class="form-label">Новый логин (email)</label><input class="form-input" id="v-new-login" placeholder="новый@email.ru"></div>
+      <button class="btn btn-secondary" onclick="changeCredentials()">Обновить логин / пароль</button>
+    </div>
+    <div class="card">
+      <div class="section-title">Отзывы о вас</div>
+      <div id="v-reviews-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ADMIN PAGES ====== -->
+<div id="a-dashboard" class="page">
+  <div class="page-header"><div class="page-title">Панель администратора</div></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">1 248</div><div class="stat-label">Пользователей</div></div>
+    <div class="stat-card"><div class="stat-num">387</div><div class="stat-label">Активных заданий</div></div>
+    <div class="stat-card"><div class="stat-num">2 104</div><div class="stat-label">Выполнено</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--amber)">12</div><div class="stat-label">На модерации</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--coral)">5</div><div class="stat-label">Жалоб</div></div>
+    <div class="stat-card"><div class="stat-num">4.7</div><div class="stat-label">Средний рейтинг</div></div>
+  </div>
+  <div class="card"><div class="section-title">Последние события</div>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Событие</th><th>Пользователь</th><th>Время</th><th>Статус</th></tr></thead>
+      <tbody>
+        <tr><td>Новое задание</td><td>Надежда К.</td><td>5 мин назад</td><td><span class="status-badge s-mod">На проверке</span></td></tr>
+        <tr><td>Жалоба</td><td>Иван П.</td><td>18 мин назад</td><td><span class="status-badge s-active">Ожидает</span></td></tr>
+        <tr><td>Регистрация</td><td>Ольга М.</td><td>1 час назад</td><td><span class="status-badge s-open">Активен</span></td></tr>
+        <tr><td>Задание выполнено</td><td>Андрей С.</td><td>2 часа назад</td><td><span class="status-badge s-done">Закрыто</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<div id="a-moderation" class="page">
+  <div class="page-header"><div class="page-title">Модерация заданий</div></div>
+  <div id="admin-mod-list"></div>
+</div>
+
+<div id="a-users" class="page">
+  <div class="page-header"><div class="page-title">Пользователи</div></div>
+  <div class="card">
+    <div class="filter-row mb-14" style="margin-bottom:14px">
+      <input class="form-input" style="max-width:240px" placeholder="Поиск..." id="user-search" oninput="renderAdminUsers()">
+      <select class="form-select" id="user-filter-role" onchange="renderAdminUsers()">
+        <option value="all">Все роли</option><option value="Заказчик">Заказчики</option><option value="Волонтёр">Волонтёры</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Пользователь</th><th>Роль</th><th>Рейтинг</th><th>Заданий</th><th>Статус</th><th>Действия</th></tr></thead>
+    <tbody id="admin-users-table"></tbody></table></div>
+  </div>
+</div>
+
+<div id="a-complaints" class="page">
+  <div class="page-header"><div class="page-title">Жалобы и споры</div></div>
+  <div id="admin-complaints-list"></div>
+</div>
+
+</div><!-- /main-wrap -->
+
+<!-- ====== MODALS ====== -->
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="modal-auth">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-auth')">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Войти</button>
+      <button class="auth-tab" id="auth-tab-register" onclick="switchAuthTab('register')">Зарегистрироваться</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="auth-login-form">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="example@mail.ru"></div>
+      <div class="form-group"><label class="form-label">Пароль</label>
+        <div class="pass-toggle"><input class="form-input" type="password" id="login-pass" placeholder="••••••"><button class="eye-btn" onclick="togglePass('login-pass',this)">👁</button></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="doLogin()" style="margin-top:4px">Войти</button>
+      <div class="section-hint" style="text-align:center;margin-top:10px">Демо: customer@test.ru / volunteer@test.ru / admin@test.ru — пароль: 123456</div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="auth-register-form" style="display:none">
+      <div class="form-group"><label class="form-label">Роль</label>
+        <select class="form-select" id="reg-role">
+          <option value="customer">Заказчик (нуждаюсь в помощи)</option>
+          <option value="volunteer">Волонтёр (готов помогать)</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Имя и фамилия</label><input class="form-input" id="reg-name" placeholder="Иван Иванов"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="example@mail.ru"></div>
+      <div class="form-group"><label class="form-label">Пароль</label>
+        <div class="pass-toggle"><input class="form-input" type="password" id="reg-pass" placeholder="Минимум 6 символов"><button class="eye-btn" onclick="togglePass('reg-pass',this)">👁</button></div>
+      </div>
+      <div class="form-group"><label class="form-label">Телефон</label><input class="form-input" id="reg-phone" placeholder="+7 (___) ___-__-__"></div>
+      <button class="btn btn-primary btn-block" onclick="doRegister()" style="margin-top:4px">Зарегистрироваться</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE TASK MODAL -->
+<div class="modal-overlay" id="modal-create-task">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-create-task')">✕</button>
+    <div class="modal-title">Создать задание</div>
+    <div class="form-group"><label class="form-label">Категория</label>
+      <select class="form-select" id="new-task-cat">
+        <option>Покупки</option><option>Медицинская помощь</option><option>Транспорт</option><option>Помощь по дому</option><option>Документы</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="new-task-title" placeholder="Кратко опишите задание"></div>
+    <div class="form-group"><label class="form-label">Описание</label><textarea class="form-textarea" id="new-task-desc" placeholder="Подробности..."></textarea></div>
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">Адрес</label><input class="form-input" id="new-task-addr" placeholder="Ваш адрес"></div>
+      <div class="form-group"><label class="form-label">Срок</label><input class="form-input" type="date" id="new-task-date"></div>
+    </div>
+    <div class="flex-row" style="justify-content:flex-end;gap:8px;margin-top:4px">
+      <button class="btn btn-secondary" onclick="closeModal('modal-create-task')">Отмена</button>
+      <button class="btn btn-primary" onclick="createTask()">Опубликовать</button>
+    </div>
+  </div>
+</div>
+
+<!-- APPLICANTS MODAL -->
+<div class="modal-overlay" id="modal-applicants">
+  <div class="modal" style="width:560px">
+    <button class="modal-close" onclick="closeModal('modal-applicants')">✕</button>
+    <div class="modal-title">Откликнувшиеся волонтёры</div>
+    <div id="modal-applicants-list"></div>
+  </div>
+</div>
+
+<!-- TASK DETAIL MODAL -->
+<div class="modal-overlay" id="modal-task-detail">
+  <div class="modal" style="width:540px">
+    <button class="modal-close" onclick="closeModal('modal-task-detail')">✕</button>
+    <div id="modal-task-detail-body"></div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="modal-review">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-review')">✕</button>
+    <div class="modal-title" id="review-modal-title">Оставить отзыв</div>
+    <div class="form-group"><label class="form-label">Оценка</label>
+      <div class="rating-stars" id="rating-stars">
+        <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span>
+        <span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Текст отзыва</label><textarea class="form-textarea" id="review-text" placeholder="Поделитесь впечатлениями..."></textarea></div>
+    <div class="flex-row" style="justify-content:flex-end;gap:8px">
+      <button class="btn btn-secondary" onclick="closeModal('modal-review')">Отмена</button>
+      <button class="btn btn-primary" onclick="submitReview()">Отправить</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLAINT MODAL -->
+<div class="modal-overlay" id="modal-complaint">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-complaint')">✕</button>
+    <div class="modal-title">⚠️ Подать жалобу</div>
+    <div class="form-group">
+      <label class="form-label">Задание</label>
+      <input class="form-input" id="complaint-task" readonly>
+    </div>
+    <div class="form-group">
+      <label class="form-label">На кого жалоба</label>
+      <input class="form-input" id="complaint-against" placeholder="Имя пользователя">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Причина жалобы</label>
+      <textarea class="form-textarea" id="complaint-reason" placeholder="Опишите ситуацию подробно..."></textarea>
+    </div>
+    <div class="flex-row" style="justify-content:flex-end;gap:8px">
+      <button class="btn btn-secondary" onclick="closeModal('modal-complaint')">Отмена</button>
+      <button class="btn btn-danger" onclick="submitComplaint()">Отправить жалобу</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ===== STATE =====
+let currentUser = null; // { role, name, email, phone, addr, initials }
+let currentRating = 0;
+let activeChatSide = null; // 'c' or 'v'
+let activeChatId = null;
+
+// ===== РЕЖИМ ДЛЯ СЛАБОВИДЯЩИХ =====
+let visionActive = localStorage.getItem('wc_vision') === '1';
+if(visionActive) document.body.classList.add('vision-lg');
+
+function toggleVision(){
+  visionActive = !visionActive;
+  document.body.classList.toggle('vision-lg', visionActive);
+  localStorage.setItem('wc_vision', visionActive ? '1' : '0');
+  // обновить состояние кнопки (может быть несколько мест)
+  document.querySelectorAll('#btn-vision').forEach(btn=>{
+    btn.classList.toggle('active', visionActive);
+    btn.setAttribute('aria-pressed', String(visionActive));
+  });
+  notify(visionActive ? '👁 Режим для слабовидящих включён' : 'Обычный режим восстановлен');
+}
+
+// ===== LOCALSTORAGE HELPERS =====
+function lsGet(key, def){ try{ const v=localStorage.getItem('wc_'+key); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function lsSet(key, val){ try{ localStorage.setItem('wc_'+key, JSON.stringify(val)); }catch(e){} }
+
+// ===== DEMO DATA =====
+// Registered users (persisted in localStorage)
+const defaultUsers = [
+  { email:'customer@test.ru', pass:'123456', role:'customer', name:'Надежда Кузнецова', phone:'+7 (912) 345-67-89', addr:'ул. Ленина, 45, кв. 12', initials:'НК', rating:4.9, tasksCount:12, doneTasks:11 },
+  { email:'volunteer@test.ru', pass:'123456', role:'volunteer', name:'Андрей Смирнов', phone:'+7 (916) 200-11-22', addr:'', district:'Центральный район', time:'Будние дни после 17:00', initials:'АС', rating:4.8, doneTasks:34 },
+  { email:'admin@test.ru', pass:'123456', role:'admin', name:'Администратор', initials:'АД', rating:5.0 },
+];
+let users_db = lsGet('users', defaultUsers);
+let admin_users = [
+  { name:'Надежда Кузнецова', role:'Заказчик', rating:4.9, tasks:12, status:'active' },
+  { name:'Андрей Смирнов', role:'Волонтёр', rating:4.8, tasks:34, status:'active' },
+  { name:'Мария Иванова', role:'Волонтёр', rating:4.9, tasks:67, status:'active' },
+  { name:'Иван Перов', role:'Заказчик', rating:3.2, tasks:4, status:'blocked' },
+  { name:'Галина Степанова', role:'Заказчик', rating:5.0, tasks:8, status:'active' },
+  { name:'Сергей Петров', role:'Волонтёр', rating:4.5, tasks:12, status:'active' },
+];
+
+let tasks = [
+  { id:1, title:'Сходить в аптеку', cat:'Покупки', catKey:'shopping', desc:'Нужно купить лекарства по списку в аптеке на ул. Садовой. Список пришлю в чат.', addr:'ул. Ленина, 45', dateMs: Date.now()-1*86400000, dateStr:'30 мая 2025', urgencyDays:3, distKm:0.8, status:'open', applicants:3, author:'Надежда К.', authorRole:'customer' },
+  { id:2, title:'Довезти до поликлиники', cat:'Транспорт', catKey:'transport', desc:'Нужна помощь с поездкой в поликлинику №3 в четверг утром.', addr:'ул. Мира, 12', dateMs: Date.now()-2*86400000, dateStr:'29 мая 2025', urgencyDays:1, distKm:2.3, status:'open', applicants:1, author:'Пётр В.', authorRole:'customer' },
+  { id:3, title:'Помочь заполнить заявление', cat:'Документы', catKey:'docs', desc:'Нужна помощь в заполнении заявления на льготу в МФЦ.', addr:'пр. Победы, 8', dateMs: Date.now()-3*86400000, dateStr:'1 июня 2025', urgencyDays:7, distKm:4.1, status:'open', applicants:5, author:'Галина С.', authorRole:'customer' },
+  { id:4, title:'Убраться в квартире', cat:'Помощь по дому', catKey:'home', desc:'Генеральная уборка в двухкомнатной квартире.', addr:'ул. Советская, 33', dateMs: Date.now()-4*86400000, dateStr:'2 июня 2025', urgencyDays:5, distKm:1.5, status:'active', applicants:0, author:'Надежда К.', authorRole:'customer' },
+  { id:5, title:'Измерить давление, помочь с таблетками', cat:'Медицинская помощь', catKey:'medical', desc:'Нужна помощь с контролем давления и приёмом лекарств.', addr:'ул. Ленина, 45', dateMs: Date.now()-5*86400000, dateStr:'28 мая 2025', urgencyDays:0, distKm:0.8, status:'done', applicants:0, author:'Надежда К.', authorRole:'customer' },
+  { id:6, title:'Купить продукты на неделю', cat:'Покупки', catKey:'shopping', desc:'Нужно купить продукты и принести домой.', addr:'ул. Карла Маркса, 7', dateMs: Date.now()-6*86400000, dateStr:'31 мая 2025', urgencyDays:2, distKm:3.2, status:'open', applicants:2, author:'Тамара Е.', authorRole:'customer' },
+];
+
+let volunteers_db = [
+  { id:1, name:'Андрей Смирнов', initials:'АС', rating:4.8, done:34, skills:['Покупки','Медицинская'] },
+  { id:2, name:'Мария Иванова', initials:'МИ', rating:4.9, done:67, skills:['Документы','Транспорт'] },
+  { id:3, name:'Сергей Петров', initials:'СП', rating:4.5, done:12, skills:['Помощь по дому','Покупки'] },
+  { id:4, name:'Ольга Козлова', initials:'ОК', rating:5.0, done:89, skills:['Медицинская','Покупки'] },
+];
+
+let complaints = [
+  { id:1, from:'Надежда К.', against:'Иван П.', reason:'Волонтёр не явился без предупреждения', date:'26 мая', status:'open' },
+  { id:2, from:'Андрей С.', against:'Тамара Е.', reason:'Грубое общение в чате', date:'25 мая', status:'open' },
+  { id:3, from:'Мария И.', against:'Пётр В.', reason:'Неправомерный отзыв', date:'24 мая', status:'resolved' },
+];
+
+// Chat conversations per side
+let chatConvos = {
+  c: [
+    { id:1, with:'Андрей Смирнов', withInitials:'АС', taskTitle:'Убраться в квартире', time:'14:25', unread:0,
+      messages:[
+        {from:'them', text:'Здравствуйте! Я готов помочь.', time:'14:20'},
+        {from:'me', text:'Добрый день! Мне нужна помощь в четверг.', time:'14:22'},
+        {from:'them', text:'Отлично, в четверг в 15:00 меня устроит. Адрес?', time:'14:23'},
+        {from:'me', text:'ул. Ленина, 45, кв. 12. Код домофона 12#.', time:'14:25'},
+      ]},
+    { id:2, with:'Мария Иванова', withInitials:'МИ', taskTitle:'Помочь с заявлением', time:'вчера', unread:2,
+      messages:[
+        {from:'them', text:'Добрый день! Видела ваше задание про документы.', time:'10:00'},
+        {from:'them', text:'Я работала с МФЦ, могу помочь.', time:'10:01'},
+      ]},
+  ],
+  v: [
+    { id:1, with:'Надежда Кузнецова', withInitials:'НК', taskTitle:'Убраться в квартире', time:'14:25', unread:0,
+      messages:[
+        {from:'me', text:'Здравствуйте! Я готов помочь.', time:'14:20'},
+        {from:'them', text:'Добрый день! Мне нужна помощь в четверг.', time:'14:22'},
+        {from:'me', text:'Отлично, в 15:00 устроит. Адрес?', time:'14:23'},
+        {from:'them', text:'ул. Ленина, 45, кв. 12. Код 12#.', time:'14:25'},
+      ]},
+    { id:2, with:'Галина Степанова', withInitials:'ГС', taskTitle:'Помочь с заявлением', time:'10:00', unread:1,
+      messages:[
+        {from:'them', text:'Добрый день, вы откликнулись на моё задание?', time:'10:00'},
+      ]},
+    { id:3, with:'Тамара Евдокимова', withInitials:'ТЕ', taskTitle:'Купить продукты', time:'вчера', unread:0,
+      messages:[
+        {from:'them', text:'Здравствуйте, список продуктов пришлю позже.', time:'09:15'},
+        {from:'me', text:'Хорошо, жду!', time:'09:20'},
+      ]},
+  ],
+};
+
+// ===== HELPERS =====
+function starsHtml(n) {
+  let s=''; for(let i=1;i<=5;i++) s += i<=n ? '★':'☆'; return s;
+}
+const catClsMap = {shopping:'cat-shopping',medical:'cat-medical',transport:'cat-transport',home:'cat-home',docs:'cat-docs'};
+function catCls(k){ return catClsMap[k]||'cat-shopping'; }
+function initials(name){ return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+
+// ===== AUTH =====
+function openAuthModal(tab){ switchAuthTab(tab); openModal('modal-auth'); }
+function switchAuthTab(tab){
+  document.getElementById('auth-tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('auth-tab-register').classList.toggle('active', tab==='register');
+  document.getElementById('auth-login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('auth-register-form').style.display = tab==='register'?'block':'none';
+}
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const u = users_db.find(u=>u.email===email && u.pass===pass);
+  if(!u){ notify('Неверный email или пароль'); return; }
+  closeModal('modal-auth');
+  loginAs(u);
+}
+function doRegister(){
+  const role = document.getElementById('reg-role').value;
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-pass').value;
+  const phone = document.getElementById('reg-phone').value.trim();
+  if(!name||!email||!pass){ notify('Заполните все поля'); return; }
+  if(pass.length<6){ notify('Пароль минимум 6 символов'); return; }
+  if(users_db.find(u=>u.email===email)){ notify('Этот email уже зарегистрирован'); return; }
+  const inits = initials(name);
+  const newUser = { email, pass, role, name, phone, initials:inits, rating:0, tasksCount:0, doneTasks:0 };
+  users_db.push(newUser);
+  lsSet('users', users_db);
+  closeModal('modal-auth');
+  loginAs(newUser);
+  notify('Регистрация успешна! Добро пожаловать, '+name+'!');
+}
+function loginAs(u){
+  currentUser = u;
+  setupNav();
+  renderAll();
+  const firstPage = {customer:'c-feed', volunteer:'v-feed', admin:'a-dashboard'}[u.role];
+  navigateTo(firstPage);
+  // Fill profile fields
+  if(u.role==='customer'){
+    document.getElementById('c-edit-name').value = u.name;
+    document.getElementById('c-edit-phone').value = u.phone||'';
+    document.getElementById('c-edit-addr').value = u.addr||'';
+    document.getElementById('c-prof-av').textContent = u.initials;
+    document.getElementById('c-prof-name').textContent = u.name;
+    renderReviews('c');
+  } else if(u.role==='volunteer'){
+    document.getElementById('v-edit-name').value = u.name;
+    document.getElementById('v-edit-phone').value = u.phone||'';
+    if(u.district) document.getElementById('v-edit-district').value = u.district;
+    document.getElementById('v-prof-av').textContent = u.initials;
+    document.getElementById('v-prof-name').textContent = u.name;
+    renderReviews('v');
+  }
+}
+function logout(){
+  currentUser = null;
+  document.getElementById('nav-tabs').innerHTML='';
+  document.getElementById('nav-right').innerHTML=`<button class="btn-vision${visionActive?' active':''}" id="btn-vision" onclick="toggleVision()" title="Режим для слабовидящих" aria-pressed="${visionActive}"><span class="vi-icon">👁</span><span class="vi-label">А+</span></button><button class="btn-login" onclick="openAuthModal('login')">Войти</button>`;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-login').classList.add('active');
+  renderPublicFeed();
+  const ham = document.getElementById('nav-tabs');
+  ham.classList.remove('open');
+}
+
+// ===== NAV =====
+const navCfg = {
+  customer:[
+    {id:'c-feed', label:'📋 Мои задания'},
+    {id:'c-chat', label:'💬 Чат', badge:'c'},
+    {id:'c-profile', label:'👤 Профиль'},
+  ],
+  volunteer:[
+    {id:'v-feed', label:'🔍 Задания'},
+    {id:'v-mytasks', label:'📋 Мои задания'},
+    {id:'v-chat', label:'💬 Чат', badge:'v'},
+    {id:'v-profile', label:'👤 Профиль'},
+  ],
+  admin:[
+    {id:'a-dashboard', label:'📊 Дашборд'},
+    {id:'a-moderation', label:'🔍 Модерация', badgeNum:12},
+    {id:'a-users', label:'👥 Пользователи'},
+    {id:'a-complaints', label:'⚠️ Жалобы', badgeNum:5},
+  ],
+};
+const roleAvatarCls = {customer:'av-c', volunteer:'av-v', admin:'av-a'};
+const roleLabels = {customer:'Заказчик', volunteer:'Волонтёр', admin:'Администратор'};
+const roleBadgeCls = {customer:'rb-c', volunteer:'rb-v', admin:'rb-a'};
+
+function setupNav(){
+  const u = currentUser;
+  const tabs = document.getElementById('nav-tabs');
+  const cfg = navCfg[u.role];
+  tabs.innerHTML = cfg.map(t=>{
+    let badge = '';
+    if(t.badge){
+      const unread = chatConvos[t.badge]?.reduce((s,c)=>s+c.unread,0)||0;
+      if(unread>0) badge=`<span style="background:var(--coral);color:#fff;border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:3px">${unread}</span>`;
+    }
+    if(t.badgeNum) badge=`<span style="background:var(--coral);color:#fff;border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:3px">${t.badgeNum}</span>`;
+    return `<button class="nav-tab" onclick="navigateTo('${t.id}')" id="ntab-${t.id}">${t.label}${badge}</button>`;
+  }).join('');
+  document.getElementById('nav-right').innerHTML=
+    `${u.role==='customer'?`<button class="btn-vision${visionActive?' active':''}" id="btn-vision" onclick="toggleVision()" title="Режим для слабовидящих" aria-pressed="${visionActive}"><span class="vi-icon">👁</span><span class="vi-label">А+</span></button>`:''}
+     <div class="avatar ${roleAvatarCls[u.role]}">${u.initials}</div>
+     <span class="role-badge ${roleBadgeCls[u.role]}" style="display:inline-block">${roleLabels[u.role]}</span>
+     <button class="btn btn-secondary btn-sm" onclick="logout()">Выйти</button>`;
+}
+
+function navigateTo(pageId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const pg=document.getElementById(pageId);
+  if(pg) pg.classList.add('active');
+  const tab=document.getElementById('ntab-'+pageId);
+  if(tab) tab.classList.add('active');
+  document.getElementById('nav-tabs').classList.remove('open');
+}
+function toggleHam(){ document.getElementById('nav-tabs').classList.toggle('open'); }
+
+// ===== PUBLIC FEED =====
+function renderPublicFeed(){
+  const cat = document.getElementById('pub-filter-cat')?.value||'all';
+  const sort = document.getElementById('pub-filter-sort')?.value||'new';
+  let list = tasks.filter(t=>t.status==='open');
+  if(cat!=='all') list=list.filter(t=>t.cat.includes(cat));
+  list = sortTasks(list, sort);
+  const el=document.getElementById('public-feed');
+  if(!el) return;
+  el.innerHTML = list.length ? list.map(t=>publicTaskCard(t)).join('') : `<div class="empty-state"><div class="empty-icon">📭</div><p>Нет заданий</p></div>`;
+}
+function publicTaskCard(t){
+  return `<div class="task-card">
+    <div class="task-header"><div class="task-title">${t.title}</div><span class="task-cat ${catCls(t.catKey)}">${t.cat}</span></div>
+    <div class="task-desc">${t.desc}</div>
+    <div class="task-meta"><span>📍 ${t.addr}</span><span>📅 До ${t.dateStr}</span>
+      ${t.urgencyDays<=2?'<span style="color:var(--coral);font-weight:700">🔴 Срочно</span>':t.urgencyDays<=5?'<span style="color:var(--amber);font-weight:700">🟡 Скоро</span>':''}
+      <span>👤 ${t.author}</span>
+    </div>
+    <div class="task-actions"><button class="btn btn-primary btn-sm" onclick="requireAuth()">✋ Откликнуться</button></div>
+  </div>`;
+}
+function requireAuth(){ notify('Войдите или зарегистрируйтесь, чтобы откликнуться'); openAuthModal('login'); }
+
+// ===== SORT =====
+function sortTasks(list, sort){
+  const arr = [...list];
+  if(sort==='urgent') return arr.sort((a,b)=>a.urgencyDays-b.urgencyDays);
+  if(sort==='near') return arr.sort((a,b)=>a.distKm-b.distKm);
+  // 'new' — sort by id descending (higher id = newer)
+  return arr.sort((a,b)=>b.id-a.id);
+}
+
+// ===== RENDER ALL =====
+function renderAll(){
+  if(!currentUser) return;
+  renderPublicFeed();
+  if(currentUser.role==='customer'){ renderCustomerTasks(); renderChatSidebar('c'); }
+  if(currentUser.role==='volunteer'){ renderVolFeed(); renderVolMyTasks(); renderChatSidebar('v'); }
+  if(currentUser.role==='admin'){ renderAdminMod(); renderAdminUsers(); renderAdminComplaints(); }
+}
+
+// ===== CUSTOMER TASKS =====
+function renderCustomerTasks(){
+  const active=tasks.filter(t=>['open','active','moderation'].includes(t.status)&&t.authorRole==='customer');
+  const history=tasks.filter(t=>t.status==='done'&&t.authorRole==='customer');
+  document.getElementById('ct-active').innerHTML=active.length?active.map(customerCard).join(''):`<div class="empty-state"><div class="empty-icon">📭</div><p>Нет активных заданий</p></div>`;
+  document.getElementById('ct-history').innerHTML=history.length?history.map(customerCard).join(''):`<div class="empty-state"><div class="empty-icon">📚</div><p>История пуста</p></div>`;
+}
+function customerCard(t){
+  const sl={open:'s-open',active:'s-active',done:'s-done',moderation:'s-mod'};
+  const ll={open:'Открыто',active:'В работе',done:'Выполнено',moderation:'На модерации'};
+  return `<div class="task-card">
+    <div class="task-header"><div class="task-title">${t.title}</div><span class="task-cat ${catCls(t.catKey)}">${t.cat}</span></div>
+    <div class="task-desc">${t.desc}</div>
+    <div class="task-meta"><span>📍 ${t.addr}</span><span>📅 ${t.dateStr}</span>
+      <span class="status-badge ${sl[t.status]}">${ll[t.status]}</span>
+    </div>
+    <div class="task-actions">
+      ${t.status==='open'&&t.applicants>0?`<button class="btn btn-primary btn-sm" onclick="showApplicants(${t.id})">👥 ${t.applicants} откликнулись</button>`:''}
+      ${t.status==='active'?`<button class="btn btn-primary btn-sm" onclick="markDone(${t.id},'customer')">✅ Выполнено</button>
+        <button class="btn btn-secondary btn-sm" onclick="openChatFromTask(${t.id},'c')">💬 Чат с волонтёром</button>
+        <button class="btn btn-danger btn-sm" onclick="openComplaintModal('${t.title}')">⚠️ Жалоба</button>`:''}
+      ${t.status==='done'?`<button class="btn btn-secondary btn-sm" onclick="openReview('волонтёру')">⭐ Отзыв</button>`:''}
+      ${t.status==='open'?`<button class="btn btn-danger btn-sm" onclick="deleteTask(${t.id})">🗑 Удалить</button>`:''}
+      ${t.status==='moderation'?`<span class="text-m" style="font-size:12px">⏳ Ожидает проверки модератором</span>`:''}
+    </div>
+  </div>`;
+}
+function showApplicants(taskId){
+  const t=tasks.find(t=>t.id===taskId);
+  const pool=volunteers_db.slice(0,t.applicants);
+  document.getElementById('modal-applicants-list').innerHTML=pool.map(v=>`
+    <div class="vol-item">
+      <div class="vol-av">${v.initials}</div>
+      <div class="vol-info">
+        <div class="vol-name">${v.name}</div>
+        <div class="vol-stats"><span class="stars">${starsHtml(Math.round(v.rating))}</span><span>${v.rating}</span><span>· ${v.done} выполнено</span></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="selectVol(${taskId},${v.id})">Выбрать</button>
+    </div>`).join('');
+  openModal('modal-applicants');
+}
+function selectVol(taskId,volId){
+  const t=tasks.find(t=>t.id===taskId);
+  const v=volunteers_db.find(v=>v.id===volId);
+  t.status='active'; t.applicants=0; t.assigneeName=v.name; t.assigneeInitials=v.initials;
+  // создаём диалог заказчика с выбранным волонтёром
+  const exists = chatConvos.c.find(c=>c.taskTitle===t.title);
+  if(!exists){
+    chatConvos.c.unshift({id:Date.now(),with:v.name,withInitials:v.initials,taskTitle:t.title,time:'сейчас',unread:0,messages:[]});
+  }
+  closeModal('modal-applicants'); renderCustomerTasks(); renderChatSidebar('c');
+  notify(`Волонтёр ${v.name} выбран!`);
+}
+
+function openChatFromTask(taskId, side){
+  const t = tasks.find(t=>t.id===taskId);
+  if(!t) return;
+  let convo = chatConvos[side].find(c=>c.taskTitle===t.title);
+  if(!convo){
+    const withName = side==='c' ? (t.assigneeName||'Волонтёр') : t.author;
+    const withInits = withName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    convo = {id:Date.now(), with:withName, withInitials:withInits, taskTitle:t.title, time:'сейчас', unread:0, messages:[]};
+    chatConvos[side].unshift(convo);
+  }
+  navigateTo(side===  'c'?'c-chat':'v-chat');
+  renderChatSidebar(side);
+  openConvo(side, convo.id);
+}
+function markDone(taskId,side){
+  const t=tasks.find(t=>t.id===taskId);
+  t.status='done';
+  if(side==='customer') renderCustomerTasks();
+  else { renderVolMyTasks(); const el=document.getElementById('v-done-count'); if(el) el.textContent=parseInt(el.textContent||0)+1; }
+  openReview(side==='customer'?'волонтёру':'заказчику');
+  notify('Задание отмечено выполненным!');
+}
+function deleteTask(id){
+  if(!confirm('Удалить задание?')) return;
+  tasks=tasks.filter(t=>t.id!==id); renderCustomerTasks(); notify('Задание удалено');
+}
+
+// ===== VOLUNTEER FEED =====
+function renderVolFeed(){
+  const cat=document.getElementById('v-filter-cat')?.value||'all';
+  const sort=document.getElementById('v-filter-sort')?.value||'new';
+  let list=tasks.filter(t=>t.status==='open');
+  if(cat!=='all') list=list.filter(t=>t.cat.includes(cat));
+  list=sortTasks(list,sort);
+  document.getElementById('v-tasks-list').innerHTML=list.length?list.map(t=>volFeedCard(t)).join(''):`<div class="empty-state"><div class="empty-icon">🔍</div><p>Нет заданий</p></div>`;
+}
+function volFeedCard(t){
+  const urgLabel = t.urgencyDays<=2?'<span style="color:var(--coral);font-weight:700">🔴 Срочно</span>':t.urgencyDays<=5?'<span style="color:var(--amber);font-weight:700">🟡 Скоро</span>':'';
+  return `<div class="task-card">
+    <div class="task-header"><div class="task-title">${t.title}</div><span class="task-cat ${catCls(t.catKey)}">${t.cat}</span></div>
+    <div class="task-desc">${t.desc}</div>
+    <div class="task-meta"><span>📍 ${t.addr}</span><span>📅 До ${t.dateStr}</span>
+      <span>📏 ${t.distKm} км</span>${urgLabel}
+      <span>👤 ${t.author}</span><span class="stars">${starsHtml(Math.round(t.authorRating||4.5))}</span>
+    </div>
+    <div class="task-actions">
+      <button class="btn btn-primary btn-sm" onclick="respondTask(${t.id})">✋ Откликнуться</button>
+      <button class="btn btn-secondary btn-sm" onclick="showTaskDetail(${t.id})">Подробнее</button>
+      <button class="btn btn-secondary btn-sm" onclick="openChatWithTask(${t.id})">💬 Написать</button>
+    </div>
+  </div>`;
+}
+function respondTask(id){
+  const t=tasks.find(t=>t.id===id); t.status='active'; t.applicants=0;
+  renderVolFeed(); renderVolMyTasks(); notify('Вы откликнулись! Ожидайте подтверждения.');
+}
+function openChatWithTask(taskId){
+  const t=tasks.find(t=>t.id===taskId);
+  // Add or open convo for this task author
+  let convo=chatConvos.v.find(c=>c.taskTitle===t.title);
+  if(!convo){
+    convo={id:Date.now(),with:t.author,withInitials:t.author.split(' ').map(w=>w[0]).join(''),taskTitle:t.title,time:'сейчас',unread:0,messages:[]};
+    chatConvos.v.unshift(convo);
+  }
+  navigateTo('v-chat'); renderChatSidebar('v'); openConvo('v',convo.id);
+}
+
+function renderVolMyTasks(){
+  const cur=tasks.filter(t=>t.status==='active');
+  const done=tasks.filter(t=>t.status==='done');
+  document.getElementById('vt-current').innerHTML=cur.length?cur.map(t=>volMyCard(t,true)).join(''):`<div class="empty-state"><div class="empty-icon">📋</div><p>Нет текущих заданий</p></div>`;
+  document.getElementById('vt-history').innerHTML=done.length?done.map(t=>volMyCard(t,false)).join(''):`<div class="empty-state"><div class="empty-icon">📚</div><p>История пуста</p></div>`;
+}
+function volMyCard(t,isCur){
+  return `<div class="task-card">
+    <div class="task-header"><div class="task-title">${t.title}</div><span class="task-cat ${catCls(t.catKey)}">${t.cat}</span></div>
+    <div class="task-desc">${t.desc}</div>
+    <div class="task-meta"><span>📍 ${t.addr}</span><span>📅 ${t.dateStr}</span><span>👤 ${t.author}</span></div>
+    <div class="task-actions">
+      ${isCur?`<button class="btn btn-primary btn-sm" onclick="markDone(${t.id},'volunteer')">✅ Выполнено</button>
+        <button class="btn btn-secondary btn-sm" onclick="navigateTo('v-chat')">💬 Чат</button>
+        <button class="btn btn-danger btn-sm" onclick="openComplaintModal('${t.title}')">⚠️ Жалоба</button>`:''}
+      ${!isCur?`<button class="btn btn-secondary btn-sm" onclick="openReview('заказчику')">⭐ Отзыв</button>`:''}
+    </div>
+  </div>`;
+}
+function showTaskDetail(id){
+  const t=tasks.find(t=>t.id===id);
+  document.getElementById('modal-task-detail-body').innerHTML=`
+    <div class="flex-row mb-14"><span class="task-cat ${catCls(t.catKey)}">${t.cat}</span><span class="status-badge s-open ml-auto">Открыто</span></div>
+    <h2 style="font-size:18px;font-weight:800;margin-bottom:10px">${t.title}</h2>
+    <p style="color:var(--text-m);line-height:1.7;margin-bottom:16px">${t.desc}</p>
+    <div class="card" style="background:var(--gray-l);border:none;margin-bottom:16px">
+      <div>📍 ${t.addr}</div><div style="margin-top:8px">📅 До ${t.dateStr}</div>
+      <div style="margin-top:8px">📏 ${t.distKm} км · ${t.urgencyDays<=2?'🔴 Срочно':t.urgencyDays<=5?'🟡 Скоро':'🟢 Не срочно'}</div>
+      <div style="margin-top:8px">👤 ${t.author} <span class="stars">${starsHtml(Math.round(t.authorRating||4.5))}</span></div>
+    </div>
+    <div class="task-actions">
+      <button class="btn btn-primary" onclick="respondTask(${t.id});closeModal('modal-task-detail')">✋ Откликнуться</button>
+      <button class="btn btn-secondary" onclick="openChatWithTask(${t.id});closeModal('modal-task-detail')">💬 Написать</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-task-detail')">Закрыть</button>
+    </div>`;
+  openModal('modal-task-detail');
+}
+
+// ===== CHAT =====
+function renderChatSidebar(side){
+  const el=document.getElementById(side+'-chat-list');
+  if(!el) return;
+  const convos=chatConvos[side]||[];
+  el.innerHTML=convos.map(c=>`
+    <div class="chat-conv-item ${activeChatId===c.id&&activeChatSide===side?'active':''}" onclick="openConvo('${side}',${c.id})">
+      <div class="chat-conv-avatar" style="background:var(--green-l);color:var(--green-d)">${c.withInitials}</div>
+      <div class="chat-conv-info">
+        <div class="chat-conv-name">${c.with}</div>
+        <div class="chat-conv-last">${c.taskTitle}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="chat-conv-time">${c.time}</span>
+        ${c.unread>0?`<span class="chat-unread">${c.unread}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+function openConvo(side,id){
+  activeChatSide=side; activeChatId=id;
+  const convo=chatConvos[side].find(c=>c.id===id);
+  if(!convo) return;
+  convo.unread=0;
+  renderChatSidebar(side);
+  // Show chat body
+  document.getElementById(side+'-chat-placeholder').style.display='none';
+  const body=document.getElementById(side+'-chat-body');
+  body.style.display='flex';
+  document.getElementById(side+'-chat-header').innerHTML=`
+    <div class="chat-conv-avatar" style="background:var(--green-l);color:var(--green-d);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">${convo.withInitials}</div>
+    <div><div class="bold">${convo.with}</div><div class="text-m" style="font-size:12px">${convo.taskTitle}</div></div>`;
+  const msgs=document.getElementById('chat-messages-'+side);
+  msgs.innerHTML=convo.messages.map(m=>`
+    <div class="msg ${m.from==='me'?'msg-out':'msg-in'}">${m.text}<div class="msg-time">${m.time}</div></div>`).join('');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function sendMsg(side){
+  const input=document.getElementById('chat-input-'+side);
+  const text=input.value.trim(); if(!text) return;
+  const convo=chatConvos[side]?.find(c=>c.id===activeChatId); if(!convo) return;
+  const now=new Date();
+  const time=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  convo.messages.push({from:'me',text,time});
+  convo.time=time; input.value='';
+  openConvo(side,activeChatId);
+}
+
+// ===== PROFILE SAVE =====
+function saveProfile(role){
+  if(role==='customer'){
+    const name=document.getElementById('c-edit-name').value.trim();
+    const phone=document.getElementById('c-edit-phone').value.trim();
+    const addr=document.getElementById('c-edit-addr').value.trim();
+    if(!name){notify('Введите имя');return;}
+    const u=users_db.find(u=>u.email===currentUser.email);
+    u.name=name; u.phone=phone; u.addr=addr; u.initials=initials(name);
+    currentUser.name=name; currentUser.phone=phone; currentUser.addr=addr; currentUser.initials=u.initials;
+    document.getElementById('c-prof-name').textContent=name;
+    document.getElementById('c-prof-av').textContent=u.initials;
+    document.getElementById('nav-right').querySelector('.avatar').textContent=u.initials;
+  } else {
+    const name=document.getElementById('v-edit-name').value.trim();
+    const phone=document.getElementById('v-edit-phone').value.trim();
+    const district=document.getElementById('v-edit-district').value.trim();
+    const time=document.getElementById('v-edit-time').value;
+    if(!name){notify('Введите имя');return;}
+    const u=users_db.find(u=>u.email===currentUser.email);
+    u.name=name; u.phone=phone; u.district=district; u.time=time; u.initials=initials(name);
+    currentUser.name=name; currentUser.initials=u.initials;
+    document.getElementById('v-prof-name').textContent=name;
+    document.getElementById('v-prof-av').textContent=u.initials;
+    document.getElementById('nav-right').querySelector('.avatar').textContent=u.initials;
+  }
+  lsSet('users', users_db);
+  notify('Данные профиля сохранены!');
+}
+function changeCredentials(){
+  const role=currentUser.role;
+  const prefix=role==='customer'?'c':'v';
+  const oldPass=document.getElementById(prefix+'-old-pass').value;
+  const newPass=document.getElementById(prefix+'-new-pass').value;
+  const newLogin=document.getElementById(prefix+'-new-login').value.trim().toLowerCase();
+  const u=users_db.find(u=>u.email===currentUser.email);
+  if(oldPass && u.pass!==oldPass){notify('Неверный текущий пароль');return;}
+  if(newPass){
+    if(newPass.length<6){notify('Пароль минимум 6 символов');return;}
+    u.pass=newPass; currentUser.pass=newPass;
+  }
+  if(newLogin){
+    if(users_db.find(x=>x.email===newLogin&&x!==u)){notify('Этот email уже занят');return;}
+    u.email=newLogin; currentUser.email=newLogin;
+  }
+  document.getElementById(prefix+'-old-pass').value='';
+  document.getElementById(prefix+'-new-pass').value='';
+  document.getElementById(prefix+'-new-login').value='';
+  lsSet('users', users_db);
+  notify('Данные входа обновлены!');
+}
+function togglePass(id,btn){
+  const el=document.getElementById(id);
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
+}
+
+// ===== REVIEWS =====
+function renderReviews(side){
+  const reviews_c=[
+    {name:'Андрей Смирнов',rating:5,text:'Очень приятный человек, всё объяснила чётко.'},
+    {name:'Мария Иванова',rating:4,text:'Хороший заказчик, задание было понятным.'},
+  ];
+  const reviews_v=[
+    {name:'Надежда Кузнецова',rating:5,text:'Очень внимательный и пунктуальный волонтёр!'},
+    {name:'Пётр Васильев',rating:5,text:'Помог разобраться с документами, всё объяснил.'},
+  ];
+  const list=side==='c'?reviews_c:reviews_v;
+  document.getElementById(side+'-reviews-list').innerHTML=list.map((r,i)=>`
+    <div ${i>0?'style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"':''}>
+      <div class="flex-row"><span class="bold" style="font-size:13px">${r.name}</span>
+        <span class="stars ml-auto">${starsHtml(r.rating)}</span></div>
+      <div class="text-m" style="margin-top:4px">${r.text}</div>
+    </div>`).join('');
+}
+
+// ===== REVIEW MODAL =====
+function openReview(target){
+  document.getElementById('review-modal-title').textContent='Оставить отзыв '+target;
+  currentRating=0;
+  document.querySelectorAll('#rating-stars span').forEach(s=>s.classList.remove('filled'));
+  document.getElementById('review-text').value='';
+  openModal('modal-review');
+}
+function setRating(n){
+  currentRating=n;
+  document.querySelectorAll('#rating-stars span').forEach((s,i)=>s.classList.toggle('filled',i<n));
+}
+function submitReview(){
+  if(!currentRating){notify('Поставьте оценку');return;}
+  closeModal('modal-review'); notify('Отзыв отправлен!');
+}
+
+// ===== CREATE TASK =====
+function createTask(){
+  const title=document.getElementById('new-task-title').value.trim();
+  const cat=document.getElementById('new-task-cat').value;
+  const desc=document.getElementById('new-task-desc').value.trim();
+  const addr=document.getElementById('new-task-addr').value.trim();
+  const dateInput=document.getElementById('new-task-date').value;
+  if(!title||!desc){notify('Заполните название и описание');return;}
+  const catKeyMap={'Покупки':'shopping','Медицинская помощь':'medical','Транспорт':'transport','Помощь по дому':'home','Документы':'docs'};
+  const dStr=dateInput?new Date(dateInput).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}):'не указан';
+  const urgDays=dateInput?Math.max(0,Math.round((new Date(dateInput)-Date.now())/86400000)):7;
+  tasks.push({id:Date.now(),title,cat,catKey:catKeyMap[cat]||'shopping',desc,addr:addr||'Адрес не указан',dateMs:Date.now(),dateStr:dStr,urgencyDays:urgDays,distKm:1.0,status:'moderation',applicants:0,author:'Надежда К.',authorRole:'customer',authorRating:4.9});
+  closeModal('modal-create-task');
+  renderCustomerTasks();
+  ['new-task-title','new-task-desc','new-task-addr','new-task-date'].forEach(id=>document.getElementById(id).value='');
+  notify('Задание отправлено на модерацию!');
+}
+
+// ===== ADMIN =====
+function renderAdminMod(){
+  const toMod=tasks.filter(t=>t.status==='moderation').slice(0,4);
+  document.getElementById('admin-mod-list').innerHTML=toMod.map(t=>`
+    <div class="task-card">
+      <div class="task-header"><div class="task-title">${t.title}</div><span class="task-cat ${catCls(t.catKey)}">${t.cat}</span></div>
+      <div class="task-desc">${t.desc}</div>
+      <div class="task-meta"><span>📍 ${t.addr}</span><span>👤 ${t.author}</span></div>
+      <div class="task-actions">
+        <button class="btn btn-primary btn-sm" onclick="adminApprove(${t.id})">✅ Одобрить</button>
+        <button class="btn btn-danger btn-sm" onclick="adminReject(${t.id})">❌ Отклонить</button>
+      </div>
+    </div>`).join('');
+}
+function adminApprove(id){
+  const t=tasks.find(t=>t.id===id);
+  if(t){ t.status='open'; }
+  renderAdminMod(); renderPublicFeed();
+  if(currentUser?.role==='customer') renderCustomerTasks();
+  notify('Задание одобрено и опубликовано');
+}
+function adminReject(id){ tasks=tasks.filter(t=>t.id!==id); renderAdminMod(); renderPublicFeed(); if(currentUser?.role==='customer') renderCustomerTasks(); notify('Задание отклонено'); }
+
+function renderAdminUsers(){
+  const q=(document.getElementById('user-search')?.value||'').toLowerCase();
+  const role=document.getElementById('user-filter-role')?.value||'all';
+  let list=admin_users;
+  if(q) list=list.filter(u=>u.name.toLowerCase().includes(q));
+  if(role!=='all') list=list.filter(u=>u.role===role);
+  document.getElementById('admin-users-table').innerHTML=list.map(u=>`<tr>
+    <td>${u.name}</td>
+    <td><span class="status-badge ${u.role==='Заказчик'?'s-open':'s-active'}">${u.role}</span></td>
+    <td><span class="stars">${starsHtml(Math.round(u.rating))}</span> ${u.rating}</td>
+    <td>${u.tasks}</td>
+    <td><span class="status-badge ${u.status==='active'?'s-open':'s-done'}">${u.status==='active'?'Активен':'Заблок.'}</span></td>
+    <td>${u.status==='active'
+      ?`<button class="btn btn-danger btn-sm" onclick="blockUser('${u.name}')">🔒 Блок</button>`
+      :`<button class="btn btn-primary btn-sm" onclick="unblockUser('${u.name}')">🔓 Разблок</button>`}
+    </td></tr>`).join('');
+}
+function blockUser(name){ const u=admin_users.find(x=>x.name===name); u.status='blocked'; renderAdminUsers(); notify(`${name} заблокирован`); }
+function unblockUser(name){ const u=admin_users.find(x=>x.name===name); u.status='active'; renderAdminUsers(); notify(`${name} разблокирован`); }
+
+function renderAdminComplaints(){
+  document.getElementById('admin-complaints-list').innerHTML=complaints.map(c=>`
+    <div class="task-card">
+      <div class="task-header"><div class="task-title">Жалоба от ${c.from}</div>
+        <span class="status-badge ${c.status==='open'?'s-active':'s-done'}">${c.status==='open'?'Открыта':'Закрыта'}</span></div>
+      <div class="task-desc">На пользователя: <strong>${c.against}</strong><br>${c.reason}</div>
+      <div class="task-meta"><span>📅 ${c.date}</span></div>
+      ${c.status==='open'?`<div class="task-actions">
+        <button class="btn btn-primary btn-sm" onclick="resolveC(${c.id},'warn')">⚠️ Предупреждение</button>
+        <button class="btn btn-danger btn-sm" onclick="resolveC(${c.id},'block')">🔒 Заблокировать</button>
+        <button class="btn btn-secondary btn-sm" onclick="resolveC(${c.id},'close')">✕ Отклонить</button>
+      </div>`:''}
+    </div>`).join('');
+}
+function resolveC(id,action){
+  complaints.find(c=>c.id===id).status='resolved';
+  renderAdminComplaints();
+  notify({warn:'Предупреждение выдано',block:'Пользователь заблокирован',close:'Жалоба отклонена'}[action]);
+}
+
+// ===== COMPLAINTS =====
+function openComplaintModal(taskTitle){
+  document.getElementById('complaint-task').value = taskTitle;
+  document.getElementById('complaint-against').value = '';
+  document.getElementById('complaint-reason').value = '';
+  openModal('modal-complaint');
+}
+function submitComplaint(){
+  const against = document.getElementById('complaint-against').value.trim();
+  const reason  = document.getElementById('complaint-reason').value.trim();
+  const task    = document.getElementById('complaint-task').value;
+  if(!against || !reason){ notify('Заполните все поля'); return; }
+  const from = currentUser?.name || 'Пользователь';
+  const today = new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  complaints.unshift({ id: Date.now(), from, against, reason: `[${task}] ${reason}`, date: today, status:'open' });
+  closeModal('modal-complaint');
+  notify('Жалоба отправлена администратору');
+  if(currentUser?.role==='admin') renderAdminComplaints();
+}
+
+// ===== MODALS =====
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+// ===== NOTIFY =====
+function notify(msg){
+  const n=document.getElementById('notif');
+  n.textContent=msg; n.classList.add('show');
+  clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// ===== TABS =====
+function switchTab(btn,contentId){
+  const p=btn.closest('.tab-row');
+  p.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const pg=btn.closest('.page');
+  pg.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(contentId).classList.add('active');
+}
+
+// ===== INIT =====
+renderPublicFeed();
+// Синхронизировать кнопку при первой загрузке
+if(visionActive){
+  const btn = document.getElementById('btn-vision');
+  if(btn){ btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); }
+}
+</script>
+</body>
+</html>
